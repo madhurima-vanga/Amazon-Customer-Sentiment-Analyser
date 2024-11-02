@@ -1,97 +1,91 @@
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-import os
-import pandas as pd
-from src.data_cleaning import clean_dataframe
-from src.data_preprocessing import apply_sentiment_analysis
-from src.data_labelling import apply_majority_vote
 
-# Set default arguments for the DAG
+from data_pipeline import (
+    load_reviews_dataset,
+    load_metadata_dataset,
+    merge_data,
+    filter_urls_paths,
+    remove_html_tags,
+    remove_non_string_reviews,
+    apply_heuristic_sentiment,
+    apply_vader_sentiment,
+    apply_textblob_sentiment,
+    apply_majority_vote,
+)
+
+# Define default arguments for the DAG
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2024, 1, 1),
-    'email_on_failure': False,
-    'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
 
 # Define the DAG
-dag = DAG(
-    'data_pipeline_dag',  # DAG name
+with DAG(
+    'sentiment_analysis_pipeline',
     default_args=default_args,
-    description='A simple data pipeline DAG for sentiment analysis',
-    schedule_interval=timedelta(days=1),  # Runs every day
-)
+    description='A Data pipeline for sentiment analysis with Airflow',
+    schedule_interval=timedelta(days=1),
+    start_date=datetime(2023, 1, 1),
+    catchup=False,
+) as dag:
 
-# Define your functions (you can reuse the same functions you have)
-def load_data(file_path):
-    df = pd.read_json(file_path, lines=True)
-    return df
+    load_reviews_task = PythonOperator(
+        task_id='load_reviews_dataset',
+        python_callable=load_reviews_dataset
+    )
 
-def save_data(df, output_path):
-    df.to_csv(output_path, index=False)
+    load_metadata_task = PythonOperator(
+        task_id='load_metadata_dataset',
+        python_callable=load_metadata_dataset
+    )
 
-def run_cleaning(**kwargs):
-    ti = kwargs['ti']
-    df = ti.xcom_pull(task_ids='load_data_task')
-    df = clean_dataframe(df)
-    ti.xcom_push(key='cleaned_data', value=df)
+    merge_data_task = PythonOperator(
+        task_id='merge_data',
+        python_callable=merge_data
+    )
 
-def run_sentiment_analysis(**kwargs):
-    ti = kwargs['ti']
-    df = ti.xcom_pull(task_ids='clean_data_task')
-    df = apply_sentiment_analysis(df)
-    ti.xcom_push(key='sentiment_data', value=df)
+    remove_html_tags_task = PythonOperator(
+        task_id='remove_html_tags',
+        python_callable=remove_html_tags
+    )
 
-def run_majority_vote(**kwargs):
-    ti = kwargs['ti']
-    df = ti.xcom_pull(task_ids='sentiment_analysis_task')
-    df = apply_majority_vote(df)
-    ti.xcom_push(key='final_data', value=df)
+    filter_urls_paths_task = PythonOperator(
+        task_id='filter_urls_paths',
+        python_callable=filter_urls_paths
+    )
 
-def save_final_data(**kwargs):
-    ti = kwargs['ti']
-    df = ti.xcom_pull(task_ids='majority_vote_task')
-    save_data(df, '../data/processed/final_amazon_reviews.csv')
+    remove_non_string_reviews_task = PythonOperator(
+        task_id='remove_non_string_reviews',
+        python_callable=remove_non_string_reviews
+    )
 
-# Define tasks using PythonOperator
-load_data_task = PythonOperator(
-    task_id='load_data_task',
-    python_callable=load_data,
-    op_kwargs={'file_path': '../data/raw/Appliances.jsonl'},
-    dag=dag,
-)
+    heuristic_sentiment_task = PythonOperator(
+        task_id='heuristic_sentiment_analysis',
+        python_callable=apply_heuristic_sentiment
+    )
 
-clean_data_task = PythonOperator(
-    task_id='clean_data_task',
-    python_callable=run_cleaning,
-    provide_context=True,  # Allows passing data between tasks via XCom
-    dag=dag,
-)
+    vader_sentiment_task = PythonOperator(
+        task_id='vader_sentiment_analysis',
+        python_callable=apply_vader_sentiment
+    )
 
-sentiment_analysis_task = PythonOperator(
-    task_id='sentiment_analysis_task',
-    python_callable=run_sentiment_analysis,
-    provide_context=True,
-    dag=dag,
-)
+    textblob_sentiment_task = PythonOperator(
+        task_id='textblob_sentiment_analysis',
+        python_callable=apply_textblob_sentiment
+    )
 
-majority_vote_task = PythonOperator(
-    task_id='majority_vote_task',
-    python_callable=run_majority_vote,
-    provide_context=True,
-    dag=dag,
-)
+    majority_vote_task = PythonOperator(
+        task_id='apply_majority_vote',
+        python_callable=apply_majority_vote
+    )
 
-save_data_task = PythonOperator(
-    task_id='save_data_task',
-    python_callable=save_final_data,
-    provide_context=True,
-    dag=dag,
-)
-
-# Set up task dependencies
-load_data_task >> clean_data_task >> sentiment_analysis_task >> majority_vote_task >> save_data_task
+    # Set up dependencies
+    [load_reviews_task, load_metadata_task] >> merge_data_task >> remove_html_tags_task >> filter_urls_paths_task >> remove_non_string_reviews_task
+    remove_non_string_reviews_task >> [
+        heuristic_sentiment_task, vader_sentiment_task, textblob_sentiment_task]
+    [heuristic_sentiment_task, vader_sentiment_task,
+        textblob_sentiment_task] >> majority_vote_task
