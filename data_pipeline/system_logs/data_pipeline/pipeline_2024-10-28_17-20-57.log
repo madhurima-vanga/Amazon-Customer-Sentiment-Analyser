@@ -1,5 +1,0 @@
-2024-10-28 17:20:57,151 | INFO | main_pipeline.py | run_pipeline | Line: 62 | Pipeline started
-2024-10-28 17:20:57,166 | INFO | main_pipeline.py | run_pipeline | Line: 65 | Loading data from ../data_pipeline/data/raw/Appliances.jsonl
-2024-10-28 17:20:57,167 | INFO | main_pipeline.py | load_data | Line: 38 | Attempting to load data from ../data_pipeline/data/raw/Appliances.jsonl
-2024-10-28 17:20:57,167 | ERROR | main_pipeline.py | load_data | Line: 41 | File not found: ../data_pipeline/data/raw/Appliances.jsonl
-2024-10-28 17:20:57,167 | ERROR | main_pipeline.py | run_pipeline | Line: 70 | Failed to load data: File not found: ../data_pipeline/data/raw/Appliances.jsonl
