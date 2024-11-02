@@ -1,1 +1,81 @@
-.env
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment directories
+venv/
+env/
+.venv/
+
+# DVC-related files
+.dvc/cache/
+.dvc/tmp/
+data/  # DVC tracked data directory
+
+# Ignore any specific files tracked by DVC to be versioned remotely
+data/reviews.csv
+data/metadata.csv
+data/merged_data.csv
+data/preprocessed_reviews.csv
+data/final_amazon_reviews.csv
+models/  # Folder containing models if tracked by DVC
+
+# Airflow-specific files
+airflow.cfg
+unittests.cfg
+logs/
+dags/__pycache__/
+dags/*.pyc
+dags/*.pyo
+dags/*.log
+dags/.ipynb_checkpoints/
+dags/*.pid
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Python package files
+*.egg
+*.egg-info/
+dist/
+build/
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+coverage.xml
+*.cover
+.cache
+nosetests.xml
+coverage/
+*.pytest_cache/
+.pytest_cache/
+
+# Environment and dependency files
+*.env
+*.DS_Store
+*.vscode/
+.idea/
+
+# OS-specific files
+Thumbs.db
+.DS_Store
+
+# Log and temporary files
+*.log
+*.tmp
+*.temp
+*.pid
+
+# Ignore generated files from DVC tracking, ensure to commit .dvc files to Git
+*.dvc
+
+# Ignore large data and model files locally while tracking in DVC remote
+data/*.csv
+models/*.pkl
+
+# Generated files from DVC (track only .dvc metadata files)
+*.dvc.lock
