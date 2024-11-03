@@ -15,6 +15,7 @@ from data_pipeline import (
     apply_textblob_sentiment,
     apply_majority_vote,
     failure_email,
+    perform_schema_check
 )
 
 # Define default arguments for the DAG
@@ -45,6 +46,12 @@ with DAG(
         task_id='load_metadata_dataset',
         python_callable=load_metadata_dataset,
         on_failure_callback=failure_email
+    )
+
+    # Define schema check task to validate loaded data
+    schema_check_task = PythonOperator(
+        task_id='schema_validation',
+        python_callable=perform_schema_check
     )
 
     merge_data_task = PythonOperator(
@@ -98,7 +105,7 @@ with DAG(
     # Email operator for sending success notification
     send_email_success = EmailOperator(
         task_id='send_email_success',
-        to='testmlops@yopmail.com',
+        to='yesitsmefolks@gmail.com',
         subject='Data Pipeline Success: Sentiment Analysis Data Pipeline Completed',
         html_content="<p>The sentiment analysis data extraction and labeling pipeline has completed successfully.</p>",
         trigger_rule='all_success',
@@ -106,7 +113,7 @@ with DAG(
     )
 
     # Set up dependencies
-    [load_reviews_task, load_metadata_task] >> merge_data_task >> remove_html_tags_task >> filter_urls_paths_task >> remove_non_string_reviews_task
+    [load_reviews_task, load_metadata_task] >> schema_check_task >> merge_data_task >> remove_html_tags_task >> filter_urls_paths_task >> remove_non_string_reviews_task
     remove_non_string_reviews_task >> [
         heuristic_sentiment_task, vader_sentiment_task, textblob_sentiment_task]
     [heuristic_sentiment_task, vader_sentiment_task,
