@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import logging
 import re
+from airflow.operators.email import EmailOperator
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -208,3 +209,24 @@ def majority_vote(heuristic, vader, textblob):
     neg_count = votes.count('negative')
     neu_count = votes.count('neutral')
     return 'positive' if pos_count > neg_count and pos_count >= neu_count else 'negative' if neg_count > pos_count and neg_count > neu_count else 'neutral'
+
+def failure_email(context):
+    task_instance = context.get('task_instance')
+    exception = context.get('exception')
+    subject = f"Data Pipeline Failed: Task {task_instance.task_id}"
+    html_content = f"""
+        <h3>Task Failure Alert</h3>
+        <p><strong>Task:</strong> {task_instance.task_id}</p>
+        <p><strong>DAG:</strong> {task_instance.dag_id}</p>
+        <p><strong>Execution Date:</strong> {task_instance.execution_date}</p>
+        <p><strong>Exception:</strong> {exception}</p>
+        <p><a href="{task_instance.log_url}">View Logs</a></p>
+    """    
+    send_email_failure = EmailOperator(
+        task_id='send_email_failure',
+        to='testmlops@yopmail.com',
+        subject=subject,
+        html_content=html_content,
+        dag=context['dag']
+    )
+    send_email_failure.execute(context=context)
