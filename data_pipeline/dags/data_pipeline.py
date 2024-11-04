@@ -3,6 +3,8 @@ import pandas as pd
 import logging
 import re
 from airflow.operators.email import EmailOperator
+from pydantic import BaseModel, Field, ValidationError, constr
+from typing import List, Dict, Optional
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -43,6 +45,97 @@ def load_metadata_dataset():
     os.makedirs(DATA_DIR, exist_ok=True)
     dataset.to_pandas().to_csv(METADATA_CSV, index=False)
     logger.info("Metadata dataset downloaded and saved to metadata.csv")
+
+
+
+# Define schema for review.csv
+class ReviewSchema(BaseModel):
+    rating: float
+    title: str
+    text: str
+    images: List[Dict[str, str]]  # Each image should have small, medium, and large URLs as dict
+    asin: str
+    parent_asin: str
+    user_id: str
+    timestamp: int
+    verified_purchase: bool
+    helpful_vote: int
+
+# Define schema for metadata.csv
+class MetadataSchema(BaseModel):
+    main_category: str
+    title: str
+    average_rating: float
+    rating_number: int
+    features: List[str]
+    description: List[str]
+    price: float
+    images: List[Dict[str, str]]  # Each image should have thumb, large, and hi_res URLs as dict
+    videos: List[Dict[str, str]]  # Each video should have title and url as dict
+    store: str
+    categories: List[List[str]]
+    details: Dict[str, Optional[str]]  # Details like materials, brand, sizes
+    parent_asin: str
+    bought_together: List[str]
+
+def validate_schema_dtypes(data: pd.DataFrame, schema):
+    """
+    Validates the schema of a DataFrame based on a provided Pydantic schema.
+    
+    Args:
+    data (pd.DataFrame): DataFrame to validate.
+    schema (BaseModel): Pydantic schema to validate against.
+    
+    Returns:
+    None: Prints validation status.
+    """
+    pydantic_to_pandas_dtypes = {
+        float: 'float64',
+        str: 'object',
+        int: 'int64',
+        bool: 'bool',
+        list: 'object',
+        dict: 'object'
+    }
+    expected_dtypes = {}
+    for field in schema.__annotations__.items():
+        field_name, field_type = field
+        base_type = field_type if not hasattr(field_type, '__origin__') else field_type.__origin__
+        expected_dtypes[field_name] = pydantic_to_pandas_dtypes.get(base_type, 'object')
+    
+    # Validate each column dtype
+    errors = []
+    for column, expected_dtype in expected_dtypes.items():
+        if column in data.columns:
+            actual_dtype = str(data[column].dtype)
+            if actual_dtype != expected_dtype:
+                errors.append((column, expected_dtype, actual_dtype))
+        else:
+            errors.append((column, expected_dtype, 'Column not found'))
+    
+    # Log results
+    if errors:
+        logger.info("Schema validation errors found in column data types:")
+        for column, expected, actual in errors:
+            print(f"Column '{column}': Expected dtype '{expected}', but found '{actual}'")
+    else:
+        logger.info("Column data type validation passed successfully!")
+
+# Usage example
+def perform_schema_check():
+    # Load CSV files
+    review_df = pd.read_csv(REVIEWS_CSV, low_memory=False)
+    metadata_df = pd.read_csv(METADATA_CSV, low_memory=False)
+
+    # Validate review.csv
+    #print("Validating review.csv column data types...")
+    logger.info("Validating review.csv column data types...")
+    validate_schema_dtypes(review_df, ReviewSchema)
+
+    # Validate metadata.csv
+    #print("\nValidating metadata.csv column data types...")
+    logger.info("Validating metadata.csv column data types...")
+    validate_schema_dtypes(metadata_df, MetadataSchema)
 
 
 def merge_data():
@@ -224,7 +317,7 @@ def failure_email(context):
     """    
     send_email_failure = EmailOperator(
         task_id='send_email_failure',
-        to='testmlops@yopmail.com',
+        to='yesitsmefolks@gmail.com',
         subject=subject,
         html_content=html_content,
         dag=context['dag']
