@@ -280,12 +280,10 @@ def apply_majority_vote():
     textblob_df = pd.read_csv('./data/textblob_sentiment.csv')
 
     # Merge the files on a common column
-    df = df.merge(heuristic_df[[
-                  'cleaned_text', 'heuristic_sentiment']], on='cleaned_text', how='left')
-    df = df.merge(
-        vader_df[['cleaned_text', 'vader_sentiment']], on='cleaned_text', how='left')
-    df = df.merge(
-        textblob_df[['cleaned_text', 'textblob_sentiment']], on='cleaned_text', how='left')
+    df = pd.concat([df, heuristic_df[['cleaned_text', 'heuristic_sentiment']],
+                vader_df[['cleaned_text', 'vader_sentiment']],
+                textblob_df[['cleaned_text', 'textblob_sentiment']]], axis=1)
+
     df['final_sentiment'] = df.apply(lambda row: majority_vote(
         row['heuristic_sentiment'], row['vader_sentiment'],
         row['textblob_sentiment']
