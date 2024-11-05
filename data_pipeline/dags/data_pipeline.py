@@ -5,6 +5,7 @@ import re
 from airflow.operators.email import EmailOperator
 from pydantic import BaseModel, Field, ValidationError, constr
 from typing import List, Dict, Optional
+from params import email_params
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -301,7 +302,7 @@ def majority_vote(heuristic, vader, textblob):
     neu_count = votes.count('neutral')
     return 'positive' if pos_count > neg_count and pos_count >= neu_count else 'negative' if neg_count > pos_count and neg_count > neu_count else 'neutral'
 
-def failure_email(context):
+def send_failure_email(context):
     task_instance = context.get('task_instance')
     exception = context.get('exception')
     subject = f"Data Pipeline Failed: Task {task_instance.task_id}"
@@ -312,10 +313,11 @@ def failure_email(context):
         <p><strong>Execution Date:</strong> {task_instance.execution_date}</p>
         <p><strong>Exception:</strong> {exception}</p>
         <p><a href="{task_instance.log_url}">View Logs</a></p>
-    """    
+    """
+    failure_email_address=email_params['failure_email']
     send_email_failure = EmailOperator(
-        task_id='send_email_failure',
-        to='yesitsmefolks@gmail.com',
+        task_id='send_failure_email',
+        to=failure_email_address,
         subject=subject,
         html_content=html_content,
         dag=context['dag']
