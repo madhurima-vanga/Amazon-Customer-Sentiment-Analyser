@@ -58,13 +58,9 @@ To install the required dependencies for this project, follow the steps below:
    ```
 
 ## Usage Guidelines
-1. To run the data pipeline, execute:
-   ```bash
-   ```
+1. To run the data pipeline, refer to the readme in the data pipeline folder.
 
-2. To train the model, use:
-   ```bash
-   ```
+2. To train the model: to be implemented.
 
 3. To deploy the model, follow the steps in [Deployment](#deployment).
 
