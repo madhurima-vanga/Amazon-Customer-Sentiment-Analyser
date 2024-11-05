@@ -70,8 +70,6 @@ Thumbs.db
 *.temp
 *.pid
 
-# Ignore generated files from DVC tracking, ensure to commit .dvc files to Git
-*.dvc
 
 # Ignore large data and model files locally while tracking in DVC remote
 data/*.csv
