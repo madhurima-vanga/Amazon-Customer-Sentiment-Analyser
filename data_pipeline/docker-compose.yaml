@@ -126,16 +126,6 @@ services:
   airflow-webserver:
     <<: *airflow-common
     command: webserver
-    environment:
-      <<: *airflow-common-env
-      # SMTP configurations for email alerts
-      AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
-      AIRFLOW__SMTP__SMTP_STARTTLS: 'true'
-      AIRFLOW__SMTP__SMTP_SSL: 'false'
-      AIRFLOW__SMTP__SMTP_USER: amazonsentimentanalysis@gmail.com
-      AIRFLOW__SMTP__SMTP_PASSWORD: add_your_pass
-      AIRFLOW__SMTP__SMTP_PORT: 587
-      AIRFLOW__SMTP__SMTP_MAIL_FROM: amazonsentimentanalysis@gmail.com
     ports:
       - "8080:8080"
     healthcheck:
@@ -153,16 +143,6 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
-    environment:
-      <<: *airflow-common-env
-      # SMTP configurations for email alerts
-      AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
-      AIRFLOW__SMTP__SMTP_STARTTLS: 'true'
-      AIRFLOW__SMTP__SMTP_SSL: 'false'
-      AIRFLOW__SMTP__SMTP_USER: amazonsentimentanalysis@gmail.com
-      AIRFLOW__SMTP__SMTP_PASSWORD: add_your_pass
-      AIRFLOW__SMTP__SMTP_PORT: 587
-      AIRFLOW__SMTP__SMTP_MAIL_FROM: amazonsentimentanalysis@gmail.com
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
       interval: 30s
@@ -178,17 +158,6 @@ services:
   airflow-worker:
     <<: *airflow-common
     command: celery worker
-    environment:
-      <<: *airflow-common-env
-      # SMTP configurations for email alerts
-      AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
-      AIRFLOW__SMTP__SMTP_STARTTLS: 'true'
-      AIRFLOW__SMTP__SMTP_SSL: 'false'
-      AIRFLOW__SMTP__SMTP_USER: amazonsentimentanalysis@gmail.com
-      AIRFLOW__SMTP__SMTP_PASSWORD: add_your_pass
-      AIRFLOW__SMTP__SMTP_PORT: 587
-      AIRFLOW__SMTP__SMTP_MAIL_FROM: amazonsentimentanalysis@gmail.com
-      DUMB_INIT_SETSID: "0"
     healthcheck:
       # yamllint disable rule:line-length
       test:
@@ -198,6 +167,11 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    environment:
+      <<: *airflow-common-env
+      # Required to handle warm shutdown of the celery workers properly
+      # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
+      DUMB_INIT_SETSID: "0"
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
