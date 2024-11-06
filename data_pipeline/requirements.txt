@@ -1,0 +1,7 @@
+pandas==2.2.3
+pytest==8.0.2
+beautifulsoup4==4.12.2
+vaderSentiment==3.3.2
+textblob==0.17.1
+apache-airflow
+pydantic

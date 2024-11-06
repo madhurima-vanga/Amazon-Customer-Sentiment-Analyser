@@ -1,71 +1,156 @@
+
 # Airflow Sentiment Analysis Data Pipeline
 
-This project sets up an Apache Airflow data pipeline using Docker Compose to manage sentiment analysis tasks. The pipeline processes and analyzes review data, storing outputs in CSV files.
+This project sets up an Apache Airflow data pipeline using Docker Compose to manage sentiment analysis tasks. The pipeline automates data processing, storage, and analysis tasks, storing results in organized CSV files and ensuring reproducibility with DVC.
 
-## Folder Structure
+## 📁 Folder Structure
 
-DAGs: Defined in data_pipeline.py within the dags folder.
-Data Storage: Processed CSV files are saved in the data directory.
-Tests: Unit tests for the pipeline are located in the tests folder.
+- **`dags/`**: Contains the main Airflow DAG file, `data_pipeline.py`, which defines the pipeline tasks.
+- **`data/`**: Holds raw, processed, and final datasets in CSV format. These files are version-controlled with DVC.
+- **`tests/`**: Contains unit tests to ensure the functionality and accuracy of each component in the pipeline.
+- **`.dvc/`**: Metadata directory managed by DVC to track data file versions and dependencies.
+- **`docker-compose.yml`**: Defines the containerized services for Airflow, including the Airflow scheduler, web server, and workers.
 
-## Setup and Installation
+## 🔄 Data Pipeline Overview
+
+The pipeline performs the following steps:
+
+1. **Download and Load Data**: Load review and metadata datasets from Hugging Face into the `data/` directory.
+
+2. **Schema Validation**: Validates the data schema to ensure it conforms to expected formats and structures, catching any structural issues in the data before processing.
+
+3. **Preprocess and Clean Data**: Removes HTML tags, filters out URLs or file paths, and formats the text for analysis.
+
+4. **Feature Engineering**: Analyzes the sentiment of reviews using multiple models (e.g., heuristic, VADER, TextBlob) and applies majority voting to determine the final sentiment label.
+
+5. **Store Results**: Saves the final processed data to `final_amazon_reviews.csv` in the `data/` folder.
+
+6. **Error Handling and Logging**: Implements comprehensive logging and error handling at each step to track pipeline progress, catch issues, and store error messages for debugging.
+
+7. **Email Notifications**: Sends email notifications to the team in case of pipeline failures, ensuring prompt attention and reducing downtime.
+
+## ⚙️ Setup and Installation
 
 ### Prerequisites
-Docker and Docker Compose should be installed on your system.
+- Ensure **Docker** and **Docker Compose** are installed on your system.
 
 ### Getting Started
-- Clone the Repository:
 
-git clone https://github.com/madhurima-vanga/Amazon-Customer-Sentiment-Analyser.git
-cd Amazon-Customer-Sentiment-Analyser/data_pipeline
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/madhurima-vanga/Amazon-Customer-Sentiment-Analyser.git
+   cd Amazon-Customer-Sentiment-Analyser/data_pipeline
+   ```
 
-- Initialize Airflow:
-Before running Airflow, initialize the database and create necessary directories:
+2. **Modify SMTP Settings in `docker-compose.yml` to get Alerts**:
+   - Locate the `docker-compose.yml` file.
+   - Update the line for the SMTP password with the password provided in the Canvas submission/comment:
+     ```yaml
+     AIRFLOW__SMTP__SMTP_PASSWORD: <password provided for email service in canvas submission>
+     ```
 
-docker compose up airflow-init
+3. **Set the Success and Failure Email in `params.py`**:
+   - In the `dags/` folder, open the `params.py` file.
+   - Update the `email_params` dictionary with your preferred email for receiving notifications:
+     ```python
+     email_params = {
+         'success_email': 'your_success_email@example.com',
+         'failure_email': 'your_failure_email@example.com',
+     }
+     ```
 
-- Start Airflow Services:
-Run the following command to start the Airflow scheduler, web server, and other services:
+4. **Initialize Airflow**:
+   Before running Airflow, initialize the database and create necessary directories:
+   ```bash
+   docker compose up airflow-init
+   ```
 
-docker compose up
+5. **Start Airflow Services**:
+   Run the following command to start the Airflow scheduler, web server, and other services:
+   ```bash
+   docker compose up
+   ```
 
-This will start all necessary containers, including the Airflow web server, which can be accessed at http://localhost:8080.
+   Access the Airflow web interface at [http://localhost:8080](http://localhost:8080) with the default credentials:
 
-Accessing the Airflow Web Interface
-Once the services are up, visit http://localhost:8080 to access the Airflow web interface. Use the default login credentials:
+   - **Username**: `airflow`
+   - **Password**: `airflow`
 
-Username: airflow
-Password: airflow
+6. **Enable and Trigger the Sentiment Analysis DAG**:
+   - In the Airflow web interface, locate the DAG named **`sentiment_analysis_pipeline`**.
+   - **Enable** the DAG by toggling it to "On."
+   - **Trigger** the DAG manually to start the pipeline and monitor its progress.
 
-## Running Tests
+## 🧪 Running Tests
 
-Unit tests for the pipeline are written with pytest and located in the tests folder.
+Unit tests for the pipeline are written with pytest and located in the `tests/` folder.
 
-Install Dependencies (if not done in a virtual environment):
+- **Create a Virtual Environment:** You can use the following command to create a virtual environment named venv:
+```bash
+  python -m venv venv
+  ```
 
-pip install pytest
+- **Activate the Virtual Environment:**
 
-Run all tests with:
+```bash
+source venv/bin/activate
+```
 
-pytest tests/
+- **Install Required Packages:**
+```bash
+cd data_pipeline
+pip install -r requirements.txt
+```
 
-This will execute all unit tests and display results, verifying the functionality of each pipeline component.
+- **Run the Tests**
+Now that your environment is set up with the required dependencies, you can run your tests using pytest:
 
-### Data Storage
+```bash
+python -m pytest tests
+```
 
-Processed data from the Airflow tasks, such as CSV files generated by the pipeline, are stored in the data directory within the project. This folder will contain:
 
-reviews.csv: The raw reviews dataset.
-metadata.csv: The raw metadata dataset.
-merged_data.csv: Merged review and metadata file.
-Additional CSV files created during data preprocessing and analysis.
+  This will execute all unit tests and display results, verifying the functionality of each pipeline component.
 
-### Cleaning Up
+## 🗄️ Data Storage
 
-To stop the containers, press CTRL+C in the terminal where Docker Compose is running.
+Processed data from the Airflow tasks, such as CSV files generated by the pipeline, are stored in the `data/` directory within the project. This folder will contain:
 
-To remove all containers and reset Airflow:
+- **reviews.csv**: The raw reviews dataset.
+- **metadata.csv**: The raw metadata dataset.
+- **merged_data.csv**: Merged review and metadata file.
+- **preprocessed_reviews.csv**: Cleaned and processed review data for analysis.
+- **final_amazon_reviews.csv**: Final output containing sentiment analysis results.
 
+## 📊 Data Versioning with DVC
+
+DVC ensures reproducibility by tracking versions of datasets and outputs.
+
+- **Configure Remote Storage**: Use DVC to store data files remotely (e.g., Amazon S3). For example:
+  ```bash
+  dvc remote add -d myremote s3://amazonsentimentanalysis/mlops-dvc
+  ```
+
+- **Add New Data Versions**: For each new data version, use `dvc add` and push it to the remote storage.
+  
+- **Pull Data Versions**: Team members can download specific data versions as needed:
+  ```bash
+  dvc pull
+  ```
+
+- **View Data Version History**: DVC allows viewing the full history of data file versions for reproducibility.
+
+## 🧹 Cleaning Up
+
+To stop the containers, press **CTRL+C** in the terminal where Docker Compose is running.
+
+To remove all containers and reset Airflow, run:
+```bash
 docker compose down --volumes --remove-orphans
+```
 
 This command will stop all services and remove volumes, clearing the Airflow database and any temporary files.
+
+---
+
+With this setup, the project is ready for data processing, sentiment analysis, and version-controlled data storage using DVC.
