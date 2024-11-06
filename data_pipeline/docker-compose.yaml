@@ -74,7 +74,7 @@ x-airflow-common:
     AIRFLOW__SMTP__SMTP_STARTTLS: 'true'
     AIRFLOW__SMTP__SMTP_SSL: 'false'
     AIRFLOW__SMTP__SMTP_USER: amazonsentimentanalysis@gmail.com
-    AIRFLOW__SMTP__SMTP_PASSWORD: add_your_pass
+    AIRFLOW__SMTP__SMTP_PASSWORD: <password provided for email service>
     AIRFLOW__SMTP__SMTP_PORT: 587
     AIRFLOW__SMTP__SMTP_MAIL_FROM: amazonsentimentanalysis@gmail.com
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks

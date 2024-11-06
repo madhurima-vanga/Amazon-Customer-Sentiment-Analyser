@@ -5,7 +5,7 @@ import re
 from airflow.operators.email import EmailOperator
 from pydantic import BaseModel, Field, ValidationError, constr
 from typing import List, Dict, Optional
-from params import email_params
+from dags.params import email_params
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -167,7 +167,7 @@ def remove_html_tags():
             text = BeautifulSoup(text, "html.parser").get_text()
         return text.lower()
 
-    df = pd.read_csv(MERGED_CSV).head(10000)
+    df = pd.read_csv(MERGED_CSV).head(5000)
     df['cleaned_text'] = df['text'].apply(clean_text)
     df.to_csv(HTML_CLEANED_CSV, index=False)
     logger.info("HTML tags removed and data saved to html_cleaned_data.csv")
