@@ -5,7 +5,7 @@ import re
 from airflow.operators.email import EmailOperator
 from pydantic import BaseModel, Field, ValidationError, constr
 from typing import List, Dict, Optional
-from dags.params import email_params
+from params import email_params
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -21,8 +21,6 @@ FILTERED_CSV = os.path.join(DATA_DIR, "filtered_data.csv")
 PREPROCESSED_CSV = os.path.join(DATA_DIR, "preprocessed_reviews.csv")
 
 FINAL_OUTPUT_CSV = os.path.join(DATA_DIR, "final_amazon_reviews.csv")
-
-# Initialize sentiment models
 
 
 # Data Loading Functions
@@ -48,13 +46,12 @@ def load_metadata_dataset():
     logger.info("Metadata dataset downloaded and saved to metadata.csv")
 
 
-
 # Define schema for review.csv
 class ReviewSchema(BaseModel):
     rating: float
     title: str
     text: str
-    images: List[Dict[str, str]]  # Each image should have small, medium, and large URLs as dict
+    images: List[Dict[str, str]]
     asin: str
     parent_asin: str
     user_id: str
@@ -71,22 +68,23 @@ class MetadataSchema(BaseModel):
     features: List[str]
     description: List[str]
     price: float
-    images: List[Dict[str, str]]  # Each image should have thumb, large, and hi_res URLs as dict
-    videos: List[Dict[str, str]]  # Each video should have title and url as dict
+    images: List[Dict[str, str]]
+    videos: List[Dict[str, str]]
     store: str
     categories: List[List[str]]
-    details: Dict[str, Optional[str]]  # Details like materials, brand, sizes
+    details: Dict[str, Optional[str]]  
     parent_asin: str
     bought_together: List[str]
+
 
 def validate_schema_dtypes(data: pd.DataFrame, schema):
     """
     Validates the schema of a DataFrame based on a provided Pydantic schema.
-    
+
     Args:
     data (pd.DataFrame): DataFrame to validate.
     schema (BaseModel): Pydantic schema to validate against.
-    
+
     Returns:
     None: Prints validation status.
     """
@@ -101,9 +99,11 @@ def validate_schema_dtypes(data: pd.DataFrame, schema):
     expected_dtypes = {}
     for field in schema.__annotations__.items():
         field_name, field_type = field
-        base_type = field_type if not hasattr(field_type, '__origin__') else field_type.__origin__
-        expected_dtypes[field_name] = pydantic_to_pandas_dtypes.get(base_type, 'object')
-    
+        base_type = field_type if not hasattr(
+            field_type, '__origin__') else field_type.__origin__
+        expected_dtypes[field_name] = pydantic_to_pandas_dtypes.get(
+            base_type, 'object')
+
     # Validate each column dtype
     errors = []
     for column, expected_dtype in expected_dtypes.items():
@@ -113,28 +113,30 @@ def validate_schema_dtypes(data: pd.DataFrame, schema):
                 errors.append((column, expected_dtype, actual_dtype))
         else:
             errors.append((column, expected_dtype, 'Column not found'))
-    
+
     # Log results
     if errors:
         logger.info("Schema validation errors found in column data types:")
         for column, expected, actual in errors:
-            print(f"Column '{column}': Expected dtype '{expected}', but found '{actual}'")
+            print(
+                f"Column '{column}': Expected dtype '{expected}', but found '{actual}'")
     else:
         logger.info("Column data type validation passed successfully!")
 
-# Usage example
+
+
 def perform_schema_check():
     # Load CSV files
     review_df = pd.read_csv(REVIEWS_CSV, low_memory=False)
     metadata_df = pd.read_csv(METADATA_CSV, low_memory=False)
 
     # Validate review.csv
-    #print("Validating review.csv column data types...")
+    print("Validating review.csv column data types...")
     logger.info("Validating review.csv column data types...")
     validate_schema_dtypes(review_df, ReviewSchema)
 
     # Validate metadata.csv
-    #print("\nValidating metadata.csv column data types...")
+    print("\nValidating metadata.csv column data types...")
     logger.info("Validating metadata.csv column data types...")
     validate_schema_dtypes(metadata_df, MetadataSchema)
 
@@ -153,8 +155,8 @@ def merge_data():
     filtered_data.to_csv(MERGED_CSV, index=False)
     logger.info("Data merged and saved to merged_data.csv")
 
-# Data Cleaning and Preprocessing Functions
 
+# Data Cleaning and Preprocessing Functions
 
 def remove_html_tags():
     """Clean text by removing HTML tags and save to CSV."""
@@ -282,8 +284,8 @@ def apply_majority_vote():
 
     # Merge the files on a common column
     df = pd.concat([df, heuristic_df[['cleaned_text', 'heuristic_sentiment']],
-                vader_df[['cleaned_text', 'vader_sentiment']],
-                textblob_df[['cleaned_text', 'textblob_sentiment']]], axis=1)
+                    vader_df[['cleaned_text', 'vader_sentiment']],
+                    textblob_df[['cleaned_text', 'textblob_sentiment']]], axis=1)
 
     df['final_sentiment'] = df.apply(lambda row: majority_vote(
         row['heuristic_sentiment'], row['vader_sentiment'],
@@ -302,6 +304,7 @@ def majority_vote(heuristic, vader, textblob):
     neu_count = votes.count('neutral')
     return 'positive' if pos_count > neg_count and pos_count >= neu_count else 'negative' if neg_count > pos_count and neg_count > neu_count else 'neutral'
 
+
 def send_failure_email(context):
     task_instance = context.get('task_instance')
     exception = context.get('exception')
@@ -314,7 +317,7 @@ def send_failure_email(context):
         <p><strong>Exception:</strong> {exception}</p>
         <p><a href="{task_instance.log_url}">View Logs</a></p>
     """
-    failure_email_address=email_params['failure_email']
+    failure_email_address = email_params['failure_email']
     send_email_failure = EmailOperator(
         task_id='send_failure_email',
         to=failure_email_address,
