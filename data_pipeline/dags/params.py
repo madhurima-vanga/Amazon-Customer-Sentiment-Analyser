@@ -1,4 +1,4 @@
 email_params = {
-    'success_email': 'amazonsentimentanalysis@gmail.com',
-    'failure_email': 'amazonsentimentanalysis@gmail.com',
+    'success_email': 'add your email here',
+    'failure_email': 'add your email here',
 }
