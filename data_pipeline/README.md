@@ -106,7 +106,7 @@ pip install -r requirements.txt
 Now that your environment is set up with the required dependencies, you can run your tests using pytest:
 
 ```bash
-python -m pytest tests
+PYTHONPATH=$(pwd)/dags:$(pwd) python -m pytest tests/
 ```
 
 
