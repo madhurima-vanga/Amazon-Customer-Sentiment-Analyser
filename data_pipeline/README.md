@@ -64,6 +64,10 @@ The pipeline performs the following steps:
    ```bash
    docker compose up airflow-init
    ```
+   For WINDOWS uers: Create a file called .env in the same folder as docker-compose.yaml and set the user as follows before running airflow:
+   ```bash
+   AIRFLOW_UID=50000
+   ```
 
 5. **Start Airflow Services**:
    Run the following command to start the Airflow scheduler, web server, and other services:
