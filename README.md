@@ -14,7 +14,7 @@ This project aims to use Large language models and automate sentiment analysis f
 - [Monitoring and Drift Detection](#monitoring-and-drift-detection)
 
 
-## Directory Structure
+## Proposed Directory Structure
 ```
 .
 ├── .dvc/                       # DVC configuration files
@@ -40,6 +40,9 @@ This project aims to use Large language models and automate sentiment analysis f
 ## Installation Instructions
 To install the required dependencies for this project, follow the steps below:
 
+#### The installation instructions for data pipeline can be found in the readme for the data pipeline folder. [Instructions link](data_pipeline/README.md)
+
+
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/madhurima-vanga/Amazon-Customer-Sentiment-Analyser.git
@@ -62,7 +65,7 @@ To install the required dependencies for this project, follow the steps below:
 
 2. To train the model: to be implemented.
 
-3. To deploy the model, follow the steps in [Deployment](#deployment).
+3. To deploy the model: to be implemented.
 
 ## Data Pipeline Setup
 The data pipeline is set up using **Apache Airflow**. It is responsible for scraping, cleaning, and processing Amazon reviews data for sentiment analysis.
