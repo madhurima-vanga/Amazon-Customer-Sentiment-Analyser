@@ -5,7 +5,7 @@ import re
 from airflow.operators.email import EmailOperator
 from pydantic import BaseModel, Field, ValidationError, constr
 from typing import List, Dict, Optional
-from params import email_params
+from dags.params import email_params
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
