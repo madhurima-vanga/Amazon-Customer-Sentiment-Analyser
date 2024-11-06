@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 from airflow.operators.email import EmailOperator
-from params import email_params
+from dags.params import email_params
 
 from data_pipeline import (
     load_reviews_dataset,

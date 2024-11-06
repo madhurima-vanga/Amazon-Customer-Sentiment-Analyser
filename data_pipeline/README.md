@@ -42,13 +42,30 @@ The pipeline performs the following steps:
    cd Amazon-Customer-Sentiment-Analyser/data_pipeline
    ```
 
-2. **Initialize Airflow**:
+2. **Modify SMTP Settings in `docker-compose.yml` to get Alerts**:
+   - Locate the `docker-compose.yml` file.
+   - Update the line for the SMTP password with the password provided in the Canvas submission/comment:
+     ```yaml
+     AIRFLOW__SMTP__SMTP_PASSWORD: <password provided for email service in canvas submission>
+     ```
+
+3. **Set the Success and Failure Email in `params.py`**:
+   - In the `dags/` folder, open the `params.py` file.
+   - Update the `email_params` dictionary with your preferred email for receiving notifications:
+     ```python
+     email_params = {
+         'success_email': 'your_success_email@example.com',
+         'failure_email': 'your_failure_email@example.com',
+     }
+     ```
+
+4. **Initialize Airflow**:
    Before running Airflow, initialize the database and create necessary directories:
    ```bash
    docker compose up airflow-init
    ```
 
-3. **Start Airflow Services**:
+5. **Start Airflow Services**:
    Run the following command to start the Airflow scheduler, web server, and other services:
    ```bash
    docker compose up
@@ -59,7 +76,7 @@ The pipeline performs the following steps:
    - **Username**: `airflow`
    - **Password**: `airflow`
 
-4. **Enable and Trigger the Sentiment Analysis DAG**:
+6. **Enable and Trigger the Sentiment Analysis DAG**:
    - In the Airflow web interface, locate the DAG named **`sentiment_analysis_pipeline`**.
    - **Enable** the DAG by toggling it to "On."
    - **Trigger** the DAG manually to start the pipeline and monitor its progress.
@@ -68,15 +85,30 @@ The pipeline performs the following steps:
 
 Unit tests for the pipeline are written with pytest and located in the `tests/` folder.
 
-- **Install pytest** (if not already installed in a virtual environment):
-  ```bash
-  pip install pytest
+- **Create a Virtual Environment:** You can use the following command to create a virtual environment named venv:
+```bash
+  python -m venv venv
   ```
 
-- **Run all tests**:
-  ```bash
-  pytest tests/
-  ```
+- **Activate the Virtual Environment:**
+
+```bash
+source venv/bin/activate
+```
+
+- **Install Required Packages:**
+```bash
+cd data_pipeline
+pip install -r requirements.txt
+```
+
+- **Run the Tests**
+Now that your environment is set up with the required dependencies, you can run your tests using pytest:
+
+```bash
+python -m pytest tests
+```
+
 
   This will execute all unit tests and display results, verifying the functionality of each pipeline component.
 
