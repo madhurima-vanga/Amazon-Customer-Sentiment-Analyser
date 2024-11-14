@@ -1,8 +1,14 @@
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer, TrainingArguments
 from evaluate import load
 import numpy as np
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from datasets import DatasetDict
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score, confusion_matrix, matthews_corrcoef, log_loss
 import mlflow
+from scipy.special import softmax
+
+import os
 
 # Set MLflow tracking URI to the local instance
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
@@ -19,6 +25,8 @@ gcs_test_data_path = "gs://amazon_sentiment_analysis/processed_data/final_cleane
 
 # Load and preprocess test dataset from GCS
 dataset = load_dataset("csv", data_files=gcs_test_data_path)
+
+dataset = DatasetDict({"test": dataset["train"]})
 
 label_mapping = {"positive": 0, "negative": 1, "neutral": 2}
 
@@ -39,24 +47,42 @@ tokenized_test_dataset = dataset.map(preprocess_function, batched=True)
 
 
 def compute_metrics(eval_pred):
-    # Unpack model outputs
     logits, labels = eval_pred
-    # Get the predicted class by choosing the max logit for each sample
+    # Apply softmax to get probabilities for AUC and log loss
+    probabilities = softmax(logits, axis=1)
+    # Get class predictions for accuracy, precision, recall, and F1
     predictions = np.argmax(logits, axis=-1)
 
-    # Calculate each metric using scikit-learn functions
+    # Calculate standard classification metrics
     accuracy = accuracy_score(labels, predictions)
     f1 = f1_score(labels, predictions, average="weighted")
     precision = precision_score(labels, predictions, average="weighted")
     recall = recall_score(labels, predictions, average="weighted")
 
-    # Return a dictionary of metrics
+    # Calculate AUC (One-vs-Rest for multi-class classification) using probabilities
+    try:
+        auc = roc_auc_score(labels, probabilities, multi_class="ovr", average="weighted")
+    except ValueError:
+        auc = None  # Handle case where AUC can't be computed
+
+    # Calculate Matthews Correlation Coefficient
+    mcc = matthews_corrcoef(labels, predictions)
+    
+    # Calculate Log Loss using probabilities
+    logloss = log_loss(labels, probabilities)
+    
+    # Return metrics as a dictionary
     return {
         "accuracy": accuracy,
         "f1": f1,
         "precision": precision,
-        "recall": recall
+        "recall": recall,
+        "auc": auc if auc is not None else 0.0,
+        "mcc": mcc,
+        "log_loss": logloss
     }
+
+
 
 
 
@@ -75,11 +101,27 @@ trainer = Trainer(
 
 # Start an MLflow run to log metrics
 with mlflow.start_run(run_name="Model Evaluation"):
-    # Perform evaluation
-    eval_results = trainer.evaluate()
-
-    # Print and log each metric to MLflow
-    print("Evaluation Metrics:")
-    for metric_name, metric_value in eval_results.items():
+    # Use predict to get logits and labels
+    predictions = trainer.predict(tokenized_test_dataset["test"])
+    
+    # Log each metric to MLflow
+    metrics = compute_metrics((predictions.predictions, predictions.label_ids))
+    for metric_name, metric_value in metrics.items():
         print(f"{metric_name}: {metric_value}")
-        mlflow.log_metric(metric_name, metric_value)  # Log each metric to MLflow
+        mlflow.log_metric(metric_name, metric_value)
+
+    # Compute confusion matrix and save as artifact
+    conf_matrix = confusion_matrix(predictions.label_ids, np.argmax(predictions.predictions, axis=-1))
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", xticklabels=label_mapping.keys(), yticklabels=label_mapping.keys())
+    plt.xlabel("Predicted")
+    plt.ylabel("True")
+    plt.title("Confusion Matrix")
+
+    # Save and log the confusion matrix plot to MLflow
+    if not os.path.exists("plots"):
+        os.makedirs("plots")
+    plt_path = "plots/confusion_matrix.png"
+    plt.savefig(plt_path)
+    plt.close()
+    mlflow.log_artifact(plt_path, artifact_path="plots")
