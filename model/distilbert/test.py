@@ -2,7 +2,11 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trai
 from evaluate import load
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+import mlflow
 
+# Set MLflow tracking URI to the local instance
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_experiment("DistilBERT Sentiment Analysis Evaluation")
 
 # Load the model and tokenizer from the saved directory
 model = AutoModelForSequenceClassification.from_pretrained("./distilbert_sentiment_model")
@@ -69,8 +73,13 @@ trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
-# Perform evaluation
-eval_results = trainer.evaluate()
-print("Evaluation Metrics:")
-for metric_name, metric_value in eval_results.items():
-    print(f"{metric_name}: {metric_value}")
+# Start an MLflow run to log metrics
+with mlflow.start_run(run_name="Model Evaluation"):
+    # Perform evaluation
+    eval_results = trainer.evaluate()
+
+    # Print and log each metric to MLflow
+    print("Evaluation Metrics:")
+    for metric_name, metric_value in eval_results.items():
+        print(f"{metric_name}: {metric_value}")
+        mlflow.log_metric(metric_name, metric_value)  # Log each metric to MLflow
