@@ -8,3 +8,4 @@ evaluate
 scikit-learn
 mlflow
 seaborn
+fairlearn
