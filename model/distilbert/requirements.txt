@@ -1,0 +1,11 @@
+torch
+transformers
+transformers[torch]
+datasets
+google-cloud-storage
+gcsfs
+evaluate
+scikit-learn
+mlflow
+seaborn
+fairlearn

@@ -77,3 +77,8 @@ models/*.pkl
 
 # Generated files from DVC (track only .dvc metadata files)
 *.dvc.lock
+
+# gcp related files
+wired-glider*
+model/distilbert/distilbert_sentiment_output/
+model/distilbert/distilbert_sentiment_model/
