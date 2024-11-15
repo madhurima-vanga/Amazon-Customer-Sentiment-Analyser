@@ -82,3 +82,5 @@ models/*.pkl
 wired-glider*
 model/distilbert/distilbert_sentiment_output/
 model/distilbert/distilbert_sentiment_model/
+*.png
+*.csv

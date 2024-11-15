@@ -11,7 +11,8 @@ import seaborn as sns
 import csv,os
 
 
-mlflow.set_tracking_uri("http://127.0.0.1:5000")  # Replace with your MLflow URI
+mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+mlflow.set_tracking_uri(mlflow_tracking_uri)
 mlflow.set_experiment("Sentiment Analysis Bias Detection")
 
 # Define the GCS path to your file
@@ -22,9 +23,13 @@ fs = gcsfs.GCSFileSystem()
 with fs.open(gcs_test_data_path) as f:
     sampled_data = pd.read_csv(f, nrows=500)
 
-# Load the model and tokenizer
-model = AutoModelForSequenceClassification.from_pretrained("./distilbert_sentiment_model")
-tokenizer = AutoTokenizer.from_pretrained("./distilbert_sentiment_model")
+# Use environment variables or arguments for model and tokenizer paths
+model_dir = os.getenv("MODEL_DIR", "./distilbert_sentiment_model")
+tokenizer_dir = os.getenv("TOKENIZER_DIR", model_dir)
+
+# Load the model and tokenizer from the specified directory
+model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+tokenizer = AutoTokenizer.from_pretrained(tokenizer_dir)
 
 # Define the label mapping
 label_mapping = {"positive": 0, "negative": 1, "neutral": 2}
@@ -47,7 +52,7 @@ predictions = torch.argmax(outputs.logits, dim=1).numpy()
 # Get true labels
 labels = sampled_data["mapped_labels"].values
 
-csv_file = "compare_model_metrics.csv"
+csv_file = "compare_model_metrics_distilbert.csv"
 
 
 # Start an MLflow run

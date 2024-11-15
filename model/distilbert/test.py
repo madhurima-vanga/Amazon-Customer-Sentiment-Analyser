@@ -11,12 +11,17 @@ import csv
 import os
 
 # Set MLflow tracking URI to the local instance
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+mlflow.set_tracking_uri(mlflow_tracking_uri)
 mlflow.set_experiment("DistilBERT Sentiment Analysis Evaluation")
 
-# Load the model and tokenizer from the saved directory
-model = AutoModelForSequenceClassification.from_pretrained("./distilbert_sentiment_model")
-tokenizer = AutoTokenizer.from_pretrained("./distilbert_sentiment_model")
+# Use environment variables or arguments for model and tokenizer paths
+model_dir = os.getenv("MODEL_DIR", "./distilbert_sentiment_model")
+tokenizer_dir = os.getenv("TOKENIZER_DIR", model_dir)
+
+# Load the model and tokenizer from the specified directory
+model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+tokenizer = AutoTokenizer.from_pretrained(tokenizer_dir)
 
 from datasets import load_dataset
 
@@ -131,7 +136,7 @@ with mlflow.start_run(run_name="Model Evaluation"):
 
 
     # Create or append to the CSV file
-    csv_file = "compare_model_metrics.csv"
+    csv_file = "compare_model_metrics_distilbert.csv"
 
     csv_rows = []
     for metric_name, metric_value in metrics.items():
