@@ -7,7 +7,7 @@ import seaborn as sns
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score, confusion_matrix, matthews_corrcoef, log_loss
 import mlflow
 from scipy.special import softmax
-
+import csv
 import os
 
 # Set MLflow tracking URI to the local instance
@@ -125,3 +125,26 @@ with mlflow.start_run(run_name="Model Evaluation"):
     plt.savefig(plt_path)
     plt.close()
     mlflow.log_artifact(plt_path, artifact_path="plots")
+
+    # Prepare CSV entry
+    model_name = "DistilBERT"  
+
+
+    # Create or append to the CSV file
+    csv_file = "compare_model_metrics.csv"
+
+    csv_rows = []
+    for metric_name, metric_value in metrics.items():
+        csv_rows.append({
+            "Model_Name": model_name,
+            "Metric": metric_name,
+            "Value": metric_value
+        })
+
+    # Write to CSV
+    file_exists = os.path.isfile(csv_file)
+    with open(csv_file, mode="a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["Model_Name", "Metric", "Value"])
+        if not file_exists:
+            writer.writeheader()  # Write header only once
+        writer.writerows(csv_rows)
