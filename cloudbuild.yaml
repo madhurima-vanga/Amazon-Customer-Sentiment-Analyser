@@ -1,0 +1,73 @@
+steps:
+  # Step 1: Checkout code from GitHub
+  - id: "Clone Repository"
+    name: "gcr.io/cloud-builders/git"
+    args: ["clone", "https://github.com/madhurima-vanga/Amazon-Customer-Sentiment-Analyser.git", "."]
+
+  # Step 2: Set up Python environment
+  - id: "Setup Python Environment"
+    name: "python:3.11"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install --upgrade pip
+        pip install -r model/distilbert/requirements.txt
+
+  # Step 3: Train the model
+  - id: "Train Model"
+    name: "python:3.11"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        source .venv/bin/activate
+        python model/distilbert/train.py
+        mkdir -p model_output
+        cp -r ./distilbert_sentiment_model model_output/
+
+  # Step 4: Validate the model
+  - id: "Validate Model"
+    name: "python:3.11"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        source .venv/bin/activate
+        python model/distilbert/test.py --model-dir ./model_output/distilbert_sentiment_model
+
+  # Step 5: Perform bias detection
+  - id: "Bias Detection"
+    name: "python:3.11"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        source .venv/bin/activate
+        python model/distilbert/test_bias.py --model-dir ./model_output/distilbert_sentiment_model
+
+  # Step 6: Build and Push the model to Artifact Registry
+  - id: "Build Docker Image"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$MODEL_NAME:latest",
+        "."
+      ]
+  - id: "Push Docker Image"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$MODEL_NAME:latest"
+      ]
+
+substitutions:
+  _PROJECT_ID: "wired-glider-441301-e1"
+  _REPO_NAME: "sentiment-analysis-model"
+  _MODEL_NAME: "distilbert-sentiment-analysis"
+  _REGION: "us-east1"
