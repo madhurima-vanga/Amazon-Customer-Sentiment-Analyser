@@ -70,6 +70,44 @@ steps:
         "us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model/distilbert-sentiment-analysis:latest"
       ]
 
+  # Step 6: Send Email Notification
+  - id: "Send Email Notification"
+    name: "python:3.11"
+    env:
+      - EMAIL_ADDRESS=sentimentanalysisreviewproject@gmail.com
+      - EMAIL_PASSWORD=$EMAIL_PASSWORD  # Use Secret Manager for sensitive values
+      - RECIPIENT_EMAIL=sentimentanalysisreviewproject@gmail.com
+    entrypoint: python
+    args:
+      - "-c"
+      - |
+        import smtplib, os
+        from email.mime.text import MIMEText
+
+        # Get the build status from the environment
+        build_status = os.getenv("BUILD_STATUS", "UNKNOWN")
+        subject = f"Cloud Build Pipeline Status: {build_status}"
+        body = f"The Cloud Build pipeline has completed with status: {build_status}."
+
+        # Prepare email
+        msg = MIMEText(body)
+        msg["Subject"] = subject
+        msg["From"] = os.getenv("EMAIL_ADDRESS")
+        msg["To"] = os.getenv("RECIPIENT_EMAIL")
+
+        # Send email
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
+                server.send_message(msg)
+            print("Notification sent successfully!")
+        except Exception as e:
+            print(f"Failed to send email: {e}")
+
 
 options:
   logging: CLOUD_LOGGING_ONLY
+
+secrets:
+  - secretEnv:
+      EMAIL_PASSWORD: projects/wired-glider-441301-e1/secrets/email-password/versions/latest
