@@ -16,3 +16,9 @@ python test.py
 export TOKENIZERS_PARALLELISM=false
 
 python test_bias.py
+
+gcloud auth configure-docker us-east1-docker.pkg.dev
+
+docker build -t us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model/distilbert-sentiment-analysis:1.0.0 .
+
+docker push us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model/distilbert-sentiment-analysis:1.0.0
