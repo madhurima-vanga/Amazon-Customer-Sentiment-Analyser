@@ -1,0 +1,6 @@
+2024-11-15 02:29:22,442 - INFO - Loading PyTorch model from GCP .pth file
+2024-11-15 02:29:42,983 - INFO - Model loaded successfully.
+2024-11-15 02:29:42,983 - INFO - Saving model as a .pkl file: model.pkl
+2024-11-15 02:29:43,854 - INFO - Model successfully converted and saved as: model.pkl
+2024-11-15 02:29:43,855 - INFO - Uploading file to GCS: model.pkl
+2024-11-15 02:30:44,496 - ERROR - Failed to upload file to GCS. Error: HTTPSConnectionPool(host='storage.googleapis.com', port=443): Max retries exceeded with url: /upload/storage/v1/b/amazon_sentiment_analysis/o?uploadType=resumable&upload_id=AFiumC7ND-76YxgAi6189sSzQ2wfQGslijvh1HxAa8zhvAc20lb83oIxL50Uxn-wE25Sr3UZ-XbQfYv9TShnO9xgxZQJC4KXT4UabPDOVw09gWTr (Caused by SSLError(SSLWantWriteError(3, 'The operation did not complete (write) (_ssl.c:2406)')))
