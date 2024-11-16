@@ -83,8 +83,13 @@ wired-glider*
 model/distilbert/distilbert_sentiment_output/
 model/distilbert/distilbert_sentiment_model/
 
+*.png
+*.csv
+
+
 
 model/albert/albert_sentiment_output/
 model/albert/albert_sentiment_model/
 *mlartifacts/
 *mlruns/
+

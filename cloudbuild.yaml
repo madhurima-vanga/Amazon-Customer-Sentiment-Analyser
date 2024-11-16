@@ -1,0 +1,81 @@
+steps:
+ 
+  # Step 1: Set up Python environment
+  - id: "Setup Python Environment"
+    name: "python:3.11"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install --upgrade pip
+        pip install -r model/distilbert/requirements.txt
+
+  # Step 2: Train the model
+  - id: "Train Model"
+    name: "python:3.11"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        source .venv/bin/activate
+        python model/distilbert/train.py
+        mkdir -p model_output
+        cp -r ./distilbert_sentiment_model model_output/
+
+  # Step 3: Validate the model
+  - id: "Validate Model"
+    name: "python:3.11"
+    env:
+      - TOKENIZERS_PARALLELISM=false
+      - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        source .venv/bin/activate
+        python model/distilbert/test.py --model-dir ./model_output/distilbert_sentiment_model
+
+  # Step 4: Perform bias detection
+  - id: "Bias Detection"
+    name: "python:3.11"
+    env:
+      - TOKENIZERS_PARALLELISM=false
+      - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        source .venv/bin/activate
+        python model/distilbert/test_bias.py --model-dir ./model_output/distilbert_sentiment_model
+
+  # Step 5: Build and Push the model to Artifact Registry
+  - id: "Build Docker Image"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model/distilbert-sentiment-analysis:latest",
+        "-f",
+        "model/distilbert/Dockerfile", # Specify the Dockerfile location
+        "model/distilbert"             # Specify the build context directory
+      ]
+  - id: "Push Docker Image"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model/distilbert-sentiment-analysis:latest"
+      ]
+
+  # Step 6: Send Email Notification
+  - id: "Send Email Notification"
+    name: "python:3.11"
+    env:
+      - EMAIL_ADDRESS=sentimentanalysisreviewproject@gmail.com
+
+
+options:
+  logging: CLOUD_LOGGING_ONLY
