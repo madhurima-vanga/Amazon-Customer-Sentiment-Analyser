@@ -1,9 +1,18 @@
 steps:
-  # Step 1: Checkout code from GitHub
+  # Step 0: Clean the working directory
+  - id: "Clean Directory"
+    name: "ubuntu"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        rm -rf ./* ./.*
+        
+  # Step 1: Clone the repository
   - id: "Clone Repository"
     name: "gcr.io/cloud-builders/git"
     args: ["clone", "https://github.com/madhurima-vanga/Amazon-Customer-Sentiment-Analyser.git", "."]
-
+  
   # Step 2: Set up Python environment
   - id: "Setup Python Environment"
     name: "python:3.11"
