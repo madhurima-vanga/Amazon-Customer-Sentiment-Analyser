@@ -75,15 +75,7 @@ steps:
     name: "python:3.11"
     env:
       - EMAIL_ADDRESS=sentimentanalysisreviewproject@gmail.com
-      - EMAIL_PASSWORD=$EMAIL_PASSWORD  # Use Secret Manager for sensitive values
-      - RECIPIENT_EMAIL=sentimentanalysisreviewproject@gmail.com
-
-
 
 
 options:
   logging: CLOUD_LOGGING_ONLY
-
-secrets:
-  - secretEnv:
-      EMAIL_PASSWORD: projects/wired-glider-441301-e1/secrets/email-password/versions/latest
