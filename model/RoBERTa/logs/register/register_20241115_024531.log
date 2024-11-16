@@ -1,0 +1,9 @@
+2024-11-15 02:45:31,571 - INFO - Loading model from GCS
+2024-11-15 02:45:51,274 - INFO - Converted and saved model as: model.pkl
+2024-11-15 02:47:29,666 - INFO - Uploaded to GCS: gs://amazon_sentiment_analysis/saved_models/model.pkl
+2024-11-15 02:47:30,382 - INFO - Creating Model
+2024-11-15 02:47:30,383 - INFO - Create Model backing LRO: projects/317356856351/locations/us-central1/models/4540302425017286656/operations/4082161665167065088
+2024-11-15 02:47:47,718 - INFO - Model created. Resource name: projects/317356856351/locations/us-central1/models/4540302425017286656@1
+2024-11-15 02:47:47,719 - INFO - To use this Model in another session:
+2024-11-15 02:47:47,720 - INFO - model = aiplatform.Model('projects/317356856351/locations/us-central1/models/4540302425017286656@1')
+2024-11-15 02:47:47,722 - INFO - Registered model in Vertex AI: projects/317356856351/locations/us-central1/models/4540302425017286656
