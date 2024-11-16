@@ -1,0 +1,45 @@
+2024-11-15 01:54:12,092 - INFO - Using device: cuda
+2024-11-15 01:54:12,092 - INFO - Loading tokenizer...
+2024-11-15 01:54:39,668 - INFO - Loading data from GCS bucket 'amazon_sentiment_analysis', file 'model/test/test.csv'...
+2024-11-15 01:54:46,719 - INFO - Data loaded successfully.
+2024-11-15 01:54:49,007 - INFO - loaded model and test data from GCP
+2024-11-15 01:54:49,008 - INFO - Creating balanced subset...
+2024-11-15 01:54:50,078 - INFO - Balanced subset created with 718 samples.
+2024-11-15 01:54:50,078 - INFO - Preparing DataLoader...
+2024-11-15 01:54:50,078 - INFO - Sensitive features loaded.
+2024-11-15 01:54:50,083 - INFO - Starting predictions...
+2024-11-15 01:56:01,259 - INFO - Prediction complete.
+2024-11-15 01:56:01,259 - INFO - Evaluating model performance...
+2024-11-15 01:56:01,391 - INFO - Metrics by group:
+                              accuracy  f1_score  precision    recall
+main_category                                                        
+AMAZON FASHION                0.866667  0.871335   0.878307  0.869048
+All Beauty                    0.900000  0.886667   0.913753  0.888889
+All Electronics               0.833333  0.826891   0.830688  0.827381
+Amazon Home                   0.633333  0.637242   0.647080  0.664021
+Appliances                    0.833333  0.756296   0.789988  0.746581
+Arts, Crafts & Sewing         0.833333  0.799149   0.817593  0.788889
+Automotive                    0.766667  0.740886   0.745014  0.777350
+Baby                          0.766667  0.770902   0.768350  0.780556
+Books                         0.520000  0.522222   0.551768  0.620370
+Camera & Photo                0.866667  0.846636   0.838095  0.862963
+Car Electronics               0.769231  0.744811   0.781818  0.755411
+Cell Phones & Accessories     0.866667  0.839785   0.885281  0.851852
+Computers                     0.733333  0.735036   0.764103  0.728283
+Digital Music                 1.000000  1.000000   1.000000  1.000000
+Grocery                       0.833333  0.832951   0.841667  0.831987
+Health & Personal Care        0.766667  0.767598   0.772222  0.765152
+Home Audio & Theater          0.766667  0.748889   0.753480  0.747222
+Industrial & Scientific       0.766667  0.758686   0.765670  0.758586
+Musical Instruments           0.900000  0.894410   0.894300  0.896825
+Office Products               0.933333  0.942857   0.955556  0.939394
+Pet Supplies                  0.933333  0.930926   0.933333  0.938889
+Portable Audio & Accessories  0.900000  0.886040   0.933333  0.875000
+Premium Beauty                1.000000  1.000000   1.000000  1.000000
+Software                      0.333333  0.250000   0.250000  0.250000
+Sports & Outdoors             0.900000  0.904762   0.916667  0.916667
+Tools & Home Improvement      0.800000  0.818562   0.847619  0.816484
+Toys & Games                  0.800000  0.715110   0.725000  0.718519
+2024-11-15 01:56:01,410 - INFO - Demographic Parity Difference: 1.0
+2024-11-15 01:56:01,410 - INFO - Evaluation complete.
+2024-11-15 01:56:01,410 - INFO - Model evaluation completed.

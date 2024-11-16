@@ -1,0 +1,5 @@
+2024-11-15 01:26:20,976 - INFO - Loading PyTorch model from path: mlruns/790700365954151778/9266e0d978184b53a1483ebf98a7213f/artifacts/model/data/model.pth
+2024-11-15 01:26:24,903 - INFO - Model loaded successfully.
+2024-11-15 01:26:24,903 - INFO - Saving model as a .pkl file: model.pkl
+2024-11-15 01:26:26,539 - INFO - Model successfully converted and saved as: model.pkl
+2024-11-15 01:26:26,539 - INFO - Uploading file to GCS: model.pkl
