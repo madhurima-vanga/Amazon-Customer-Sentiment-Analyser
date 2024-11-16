@@ -55,7 +55,7 @@ steps:
       [
         "build",
         "-t",
-        "us-east1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$MODEL_NAME:latest",
+        "us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model/distilbert-sentiment-analysis:latest",
         "."
       ]
   - id: "Push Docker Image"
@@ -63,13 +63,8 @@ steps:
     args:
       [
         "push",
-        "us-east1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$MODEL_NAME:latest"
+        "us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model/distilbert-sentiment-analysis:latest"
       ]
-
-substitutions:
-  _PROJECT_ID: "wired-glider-441301-e1"
-  _REPO_NAME: "sentiment-analysis-model"
-  _MODEL_NAME: "distilbert-sentiment-analysis"
 
 options:
   logging: CLOUD_LOGGING_ONLY
