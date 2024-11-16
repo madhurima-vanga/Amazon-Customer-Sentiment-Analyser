@@ -82,3 +82,9 @@ models/*.pkl
 wired-glider*
 model/distilbert/distilbert_sentiment_output/
 model/distilbert/distilbert_sentiment_model/
+
+
+model/albert/albert_sentiment_output/
+model/albert/albert_sentiment_model/
+*mlartifacts/
+*mlruns/

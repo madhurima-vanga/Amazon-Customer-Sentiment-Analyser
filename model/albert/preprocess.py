@@ -1,5 +1,5 @@
 from datasets import load_dataset, Dataset, DatasetDict
-from transformers import DistilBertTokenizer
+from transformers import AlbertTokenizer
 import pandas as pd
 from google.cloud import storage
 from io import StringIO
@@ -23,8 +23,6 @@ data_string = blob.download_as_text()
 data = pd.read_csv(StringIO(data_string))
 
 # Load CSV directly from GCS
-
-# Take the first 5000 rows for training and next 1000 rows for testing
 train_df = data.iloc[:5000]
 test_df = data.iloc[5000:6000]
 
@@ -39,8 +37,8 @@ dataset = DatasetDict({"train": train_dataset, "test": test_dataset})
 label_mapping = {"positive": 0, "negative": 1, "neutral": 2}
 dataset = dataset.map(lambda x: {"label": label_mapping[x["final_sentiment"]]})
 
-# Load tokenizer
-tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
+# Load ALBERT tokenizer
+tokenizer = AlbertTokenizer.from_pretrained("albert-base-v2")
 
 # Tokenize the dataset
 def preprocess_function(examples):
@@ -49,4 +47,4 @@ def preprocess_function(examples):
 tokenized_dataset = dataset.map(preprocess_function, batched=True)
 
 # Save tokenized data to GCS
-tokenized_dataset.save_to_disk("gs://amazon_sentiment_analysis/distilbert/processed_data/tokenized_amazon_reviews")
+tokenized_dataset.save_to_disk("gs://amazon_sentiment_analysis/albert/processed_data/tokenized_amazon_reviews")
