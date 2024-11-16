@@ -8,7 +8,7 @@ client = storage.Client()
 # Define GCS bucket and file paths
 bucket_name = "amazon_sentiment_analysis"
 source_blob_path = "processed_data/final_cleaned_data/final_amazon_reviews.csv"
-test_blob_path = "processed_data/final_cleaned_data/test_amazon_reviews.csv"
+test_blob_path = "albert/processed_data/final_cleaned_data/test_albert_amazon_reviews.csv"
 
 # Download the file content from GCS
 bucket = client.bucket(bucket_name)
