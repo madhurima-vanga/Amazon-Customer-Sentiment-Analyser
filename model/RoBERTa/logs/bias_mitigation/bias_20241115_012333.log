@@ -1,0 +1,2 @@
+2024-11-15 01:23:33,935 - INFO - Google Cloud credentials set.
+2024-11-15 01:23:33,935 - INFO - Fetching data from gs://amazon_sentiment_analysis/model/train/train.csv.

@@ -1,0 +1,5 @@
+2024-11-15 02:28:45,594 - INFO - Loading PyTorch model from GCP .pth file
+2024-11-15 02:29:06,205 - INFO - Model loaded successfully.
+2024-11-15 02:29:06,205 - INFO - Saving model as a .pkl file: model.pkl
+2024-11-15 02:29:07,321 - INFO - Model successfully converted and saved as: model.pkl
+2024-11-15 02:29:07,322 - INFO - Uploading file to GCS: model.pkl
