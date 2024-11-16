@@ -71,3 +71,6 @@ substitutions:
   _REPO_NAME: "sentiment-analysis-model"
   _MODEL_NAME: "distilbert-sentiment-analysis"
   _REGION: "us-east1"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
