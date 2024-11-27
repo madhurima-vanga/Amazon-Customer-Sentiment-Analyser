@@ -5,7 +5,10 @@ export GOOGLE_APPLICATION_CREDENTIALS="../wired-glider-441301-e1-b6a080d0f979.js
 
 python3 preprocess.py
 
-python3 train.py --dataset_path=./processed_data/tokenized_amazon_reviews --output_dir=./
+python train.py
+
+python train.py --dataset_type tokenized
+
 
 distilbert-sentiment-model
 

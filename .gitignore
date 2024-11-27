@@ -93,3 +93,5 @@ model/albert/albert_sentiment_model/
 *mlartifacts/
 *mlruns/
 
+model/*copy/
+mlruns/
