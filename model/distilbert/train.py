@@ -25,6 +25,7 @@ args = parser.parse_args()
 dataset_path = DEFAULT_DATASETS[args.dataset_type]
 print(f"Loading dataset from: {dataset_path}")
 dataset = load_from_disk(dataset_path)
+num_epochs = int(os.getenv("NUM_EPOCHS", 3))
 
 
 mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
@@ -42,8 +43,8 @@ training_args = TrainingArguments(
     learning_rate=2e-5,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=8,
-    num_train_epochs=3,
-    weight_decay=0.01,
+    num_train_epochs=num_epochs,
+    weight_decay=0.01, 
     save_total_limit=2
 )
 

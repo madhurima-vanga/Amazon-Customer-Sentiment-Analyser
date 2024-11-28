@@ -17,6 +17,7 @@ steps:
     name: "python:3.11"
     env:
       - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
+      - NUM_EPOCHS=1
     entrypoint: bash
     args:
       - "-c"
@@ -84,6 +85,5 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  pool:
-    name: 'projects/wired-glider-441301-e1/locations/us-central1/workerPools/cicdd'
+
 
