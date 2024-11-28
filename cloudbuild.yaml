@@ -32,12 +32,13 @@ steps:
     env:
       - TOKENIZERS_PARALLELISM=false
       - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
+      - MODEL_DIR="./model_output/distilbert_sentiment_model"
     entrypoint: bash
     args:
       - "-c"
       - |
         source .venv/bin/activate
-        python model/distilbert/test.py --model-dir ./model_output/distilbert_sentiment_model
+        python model/distilbert/test.py 
 
   # Step 4: Perform bias detection
   - id: "Bias Detection"
@@ -45,12 +46,14 @@ steps:
     env:
       - TOKENIZERS_PARALLELISM=false
       - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
+      - MODEL_DIR="./model_output/distilbert_sentiment_model"
+
     entrypoint: bash
     args:
       - "-c"
       - |
         source .venv/bin/activate
-        python model/distilbert/test_bias.py --model-dir ./model_output/distilbert_sentiment_model
+        python model/distilbert/test_bias.py 
 
   # Step 5: Build and Push the model to Artifact Registry
   - id: "Build Docker Image"
@@ -81,3 +84,6 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
+  pool:
+    name: 'projects/wired-glider-441301-e1/locations/us-central1/workerPools/cicd2'
+
