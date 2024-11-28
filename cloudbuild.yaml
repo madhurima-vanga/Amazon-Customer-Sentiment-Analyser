@@ -84,5 +84,6 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  machineType: 'E2_STANDARD_16'
+  pool:
+    name: 'projects/wired-glider-441301-e1/locations/us-central1/workerPools/cicdd'
 
