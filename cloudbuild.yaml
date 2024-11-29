@@ -33,7 +33,7 @@ steps:
     env:
       - TOKENIZERS_PARALLELISM=false
       - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
-      - MODEL_DIR="./model_output/distilbert_sentiment_model"
+      - MODEL_DIR=./model_output/distilbert_sentiment_model
     entrypoint: bash
     args:
       - "-c"
@@ -47,7 +47,7 @@ steps:
     env:
       - TOKENIZERS_PARALLELISM=false
       - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
-      - MODEL_DIR="./model_output/distilbert_sentiment_model"
+      - MODEL_DIR=./model_output/distilbert_sentiment_model
 
     entrypoint: bash
     args:
