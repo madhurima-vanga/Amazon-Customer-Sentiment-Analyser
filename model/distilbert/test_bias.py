@@ -24,7 +24,7 @@ with fs.open(gcs_test_data_path) as f:
     sampled_data = pd.read_csv(f, nrows=500)
 
 # Use environment variables or arguments for model and tokenizer paths
-model_dir = os.getenv("MODEL_DIR", "./distilbert_sentiment_model")
+model_dir = os.getenv("MODEL_DIR", "./distilbert_sentiment_model").strip()
 tokenizer_dir = os.getenv("TOKENIZER_DIR", model_dir)
 
 # Load the model and tokenizer from the specified directory
