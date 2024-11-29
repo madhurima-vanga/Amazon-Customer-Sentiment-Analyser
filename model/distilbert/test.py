@@ -15,9 +15,17 @@ mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
 mlflow.set_tracking_uri(mlflow_tracking_uri)
 mlflow.set_experiment("DistilBERT Sentiment Analysis Evaluation")
 
+
+
 # Use environment variables or arguments for model and tokenizer paths
-model_dir = os.getenv("MODEL_DIR", "./distilbert_sentiment_model")
+model_dir = os.getenv("MODEL_DIR", "./distilbert_sentiment_model").strip()
 tokenizer_dir = os.getenv("TOKENIZER_DIR", model_dir)
+
+if not os.path.exists(model_dir):
+    raise FileNotFoundError(f"Model directory '{model_dir}' does not exist or is inaccessible.")
+
+print(f"Model directory: {model_dir}")
+print(f"Contents: {os.listdir(model_dir)}")
 
 # Load the model and tokenizer from the specified directory
 model = AutoModelForSequenceClassification.from_pretrained(model_dir)
