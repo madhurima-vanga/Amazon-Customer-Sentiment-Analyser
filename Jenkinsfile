@@ -17,9 +17,7 @@ pipeline {
                     // Set up Python virtual environment and install dependencies
                     sh '''
                     python3 -m venv .venv
-                    source .venv/bin/activate
-                    pip install --upgrade pip
-                    pip install -r model/distilbert/requirements.txt
+                    bash -c "source .venv/bin/activate && pip install --upgrade pip && pip install -r model/distilbert/requirements.txt"
                     '''
                 }
             }
