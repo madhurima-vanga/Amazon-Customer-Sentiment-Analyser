@@ -6,7 +6,7 @@ WORKDIR /app
 
 ENV TOKENIZERS_PARALLELISM=false
 # Copy model files into the container
-COPY ./distilbert_sentiment_model /app/model
+COPY ./model_output/distilbert_sentiment_model /app/model
 
 # Install necessary libraries
 RUN  pip install torch transformers
