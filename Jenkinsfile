@@ -28,8 +28,7 @@ pipeline {
                 script {
                     // Train the model
                     sh '''
-                    source .venv/bin/activate
-                    python3 model/distilbert/train.py
+                    bash -c "source .venv/bin/activate && python3 model/distilbert/train.py"
                     mkdir -p model_output
                     cp -r ./distilbert_sentiment_model model_output/
                     '''
@@ -42,8 +41,7 @@ pipeline {
                 script {
                     // Validate the model
                     sh '''
-                    source .venv/bin/activate
-                    python3 model/distilbert/test.py
+                    bash -c "source .venv/bin/activate && python3 model/distilbert/test.py"
                     '''
                 }
             }
@@ -54,8 +52,7 @@ pipeline {
                 script {
                     // Perform bias detection
                     sh '''
-                    source .venv/bin/activate
-                    python3 model/distilbert/test_bias.py
+                    bash -c "source .venv/bin/activate && python3 model/distilbert/test_bias.py"
                     '''
                 }
             }
