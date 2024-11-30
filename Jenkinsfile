@@ -66,6 +66,8 @@ pipeline {
                     // Build the Docker image
                     echo "Building Docker image..."
                     sh '''
+                    cp -r model_output/ model/distilbert/
+
                     docker build -t $DOCKER_IMAGE -f model/distilbert/Dockerfile model/distilbert
                     '''
                 }
