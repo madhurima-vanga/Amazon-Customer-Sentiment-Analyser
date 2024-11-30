@@ -13,7 +13,7 @@ import csv,os
 
 mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
 mlflow.set_tracking_uri(mlflow_tracking_uri)
-mlflow.set_experiment("Sentiment Analysis Bias Detection")
+mlflow.set_experiment("Distilbert Sentiment Analysis Bias Detection")
 
 # Define the GCS path to your file
 gcs_test_data_path = "gs://amazon_sentiment_analysis/processed_data/final_cleaned_data/test_bias_amazon_reviews.csv"
