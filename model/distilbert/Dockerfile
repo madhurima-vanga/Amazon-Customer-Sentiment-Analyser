@@ -12,4 +12,4 @@ COPY ./distilbert_sentiment_model /app/model
 RUN  pip install torch transformers
 
 # Run a simple API or serve the model
-CMD ["python", "-c", "from transformers import AutoModelForSequenceClassification, AutoTokenizer; model = AutoModelForSequenceClassification.from_pretrained('/app/model'); tokenizer = AutoTokenizer.from_pretrained('/app/model'); print('Model loaded successfully!')"]
+CMD ["python3", "-c", "from transformers import AutoModelForSequenceClassification, AutoTokenizer; model = AutoModelForSequenceClassification.from_pretrained('/app/model'); tokenizer = AutoTokenizer.from_pretrained('/app/model'); print('Model loaded successfully!')"]
