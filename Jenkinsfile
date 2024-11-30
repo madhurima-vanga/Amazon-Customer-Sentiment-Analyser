@@ -8,6 +8,8 @@ pipeline {
         EMAIL_ADDRESS = "sentimentanalysisreviewproject@gmail.com"
         MODEL_DIR = "./model_output/distilbert_sentiment_model"
         DOCKER_IMAGE = "us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model/distilbert-sentiment-analysis:latest"
+        DOCKER_REGISTRY = "us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model"  // Artifact registry URL
+
     }
 
     stages {
@@ -62,10 +64,10 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    //sh '''
-                    //docker build -t $DOCKER_IMAGE -f model/distilbert/Dockerfile model/distilbert
-                    echo "Docker build"
-                    //'''
+                    echo "Building Docker image..."
+                    sh '''
+                    docker build -t $DOCKER_IMAGE -f model/distilbert/Dockerfile model/distilbert
+                    '''
                 }
             }
         }
@@ -74,10 +76,10 @@ pipeline {
             steps {
                 script {
                     // Push the Docker image to Artifact Registry
-                    //sh '''
-                    //docker push $DOCKER_IMAGE
-                    echo "docker push"
-                    //'''
+                    echo "Pushing Docker image to Artifact Registry..."
+                    sh '''
+                    docker push $DOCKER_IMAGE
+                    '''
                 }
             }
         }
