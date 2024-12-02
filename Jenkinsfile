@@ -106,10 +106,33 @@ pipeline {
     }
 
     post {
+        success {
+            script {
+                // Send email for success
+                emailext(
+                    subject: "Pipeline Success: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                    body: "The Jenkins pipeline has completed successfully.\n\nJob: ${env.JOB_NAME}\nBuild: ${env.BUILD_NUMBER}\nStatus: SUCCESS",
+                    recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                    to: "${EMAIL_ADDRESS}"
+                )
+            }
+        }
+        failure {
+            script {
+                // Send email for failure
+                emailext(
+                    subject: "Pipeline Failure: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                    body: "The Jenkins pipeline has failed.\n\nJob: ${env.JOB_NAME}\nBuild: ${env.BUILD_NUMBER}\nStatus: FAILURE\nPlease check the logs for details.",
+                    recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                    to: "${EMAIL_ADDRESS}"
+                )
+            }
+        }
         always {
             script {
                 echo "Pipeline completed!"
             }
         }
     }
+
 }
