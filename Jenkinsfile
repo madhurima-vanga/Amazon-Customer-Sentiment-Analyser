@@ -7,9 +7,8 @@ pipeline {
         NUM_EPOCHS = "1"
         EMAIL_ADDRESS = "sentimentanalysisreviewproject@gmail.com"
         MODEL_DIR = "./model_output/distilbert_sentiment_model"
-        DOCKER_IMAGE = "us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model/distilbert-sentiment-analysis:latest"
-        DOCKER_REGISTRY = "us-east1-docker.pkg.dev/wired-glider-441301-e1/sentiment-analysis-model"  // Artifact registry URL
-
+        DOCKER_IMAGE = "sentimentanalysis/mlops-sentiment-analysis:latest"  // Docker Hub image URL
+        DOCKER_REGISTRY = "https://index.docker.io/v1/"  // Docker Hub registry
     }
 
     stages {
@@ -74,23 +73,21 @@ pipeline {
             }
         }
 
-        stage('Authenticate to Google Cloud') {
+        stage('Authenticate to Docker Hub') {
             steps {
-                withCredentials([file(credentialsId: '71764a53-ad36-4dae-b44c-856d3c7adb3d', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh """
-                        gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
-                        gcloud auth configure-docker
+                        echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
                     """
                 }
             }
         }
 
-
-        stage('Push Docker Image') {
+        stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    // Push the Docker image to Artifact Registry
-                    echo "Pushing Docker image to Artifact Registry..."
+                    // Push the Docker image to Docker Hub
+                    echo "Pushing Docker image to Docker Hub..."
                     sh '''
                     docker push $DOCKER_IMAGE
                     '''
