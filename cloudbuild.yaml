@@ -15,6 +15,9 @@ steps:
   # Step 2: Train the model
   - id: "Train Model"
     name: "python:3.11"
+    env:
+      - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
+      - NUM_EPOCHS=1
     entrypoint: bash
     args:
       - "-c"
@@ -30,12 +33,13 @@ steps:
     env:
       - TOKENIZERS_PARALLELISM=false
       - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
+      - MODEL_DIR=./model_output/distilbert_sentiment_model
     entrypoint: bash
     args:
       - "-c"
       - |
         source .venv/bin/activate
-        python model/distilbert/test.py --model-dir ./model_output/distilbert_sentiment_model
+        python model/distilbert/test.py 
 
   # Step 4: Perform bias detection
   - id: "Bias Detection"
@@ -43,12 +47,14 @@ steps:
     env:
       - TOKENIZERS_PARALLELISM=false
       - MLFLOW_TRACKING_URI="http://35.193.202.32:5000"
+      - MODEL_DIR=./model_output/distilbert_sentiment_model
+
     entrypoint: bash
     args:
       - "-c"
       - |
         source .venv/bin/activate
-        python model/distilbert/test_bias.py --model-dir ./model_output/distilbert_sentiment_model
+        python model/distilbert/test_bias.py 
 
   # Step 5: Build and Push the model to Artifact Registry
   - id: "Build Docker Image"
@@ -79,3 +85,5 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
+
+
