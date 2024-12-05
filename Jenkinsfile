@@ -30,8 +30,8 @@ pipeline {
                     // Train the model
                     sh '''
                     bash -c "source .venv/bin/activate && python3 model/distilbert/train.py"
-                    mkdir -p model_output
-                    cp -r ./distilbert_sentiment_model model_output/
+                    mkdir -p model_output/distilbert_sentiment_model
+                    cp -r ~/model/ model_output/distilbert_sentiment_model/
                     '''
                 }
             }
