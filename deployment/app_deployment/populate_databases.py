@@ -27,7 +27,7 @@ db_connection = psycopg2.connect(
     port="5432",
     dbname="sentiment-analysis",
     user="postgres",
-    password="mlopspipeline123"
+    password=""
 )
 cursor = db_connection.cursor()
 
