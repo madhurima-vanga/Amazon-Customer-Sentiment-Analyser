@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommerce-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecommerce-app
+  template:
+    metadata:
+      labels:
+        app: ecommerce-app
+    spec:
+      containers:
+      - name: ecommerce-app
+        image: sentimentanalysis/application:6.0  
+        ports:
+        - containerPort: 8501
+        env:
+        - name: DB_HOST
+          value: "34.56.246.97"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "sentiment-analysis"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/var/secrets/google/key.json"
+        volumeMounts:
+        - name: gcloud-key-volume
+          mountPath: /var/secrets/google
+          readOnly: true
+      volumes:
+      - name: gcloud-key-volume
+        secret:
+          secretName: gcloud-key
