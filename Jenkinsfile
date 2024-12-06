@@ -9,6 +9,12 @@ pipeline {
         MODEL_DIR = "./model_output/distilbert_sentiment_model"
         DOCKER_IMAGE = "sentimentanalysis/mlops-sentiment-analysis:latest"  // Docker Hub image URL
         DOCKER_REGISTRY = "https://index.docker.io/v1/"  // Docker Hub registry
+        GITHUB_CREDENTIALS = credentials('github-token')
+
+    }
+
+    triggers {
+        githubPush()  // Triggers on any push or PR
     }
 
     stages {
