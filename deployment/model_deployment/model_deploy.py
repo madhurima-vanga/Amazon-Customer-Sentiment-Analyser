@@ -52,7 +52,7 @@ def deploy_tensorflow_model_to_endpoint(
 if __name__ == "__main__":
     # Replace these variables with your configuration
     PROJECT_ID = "wired-glider-441301-e1"
-    REGION = "us-east4"
+    REGION = "us-west1"
     MODEL_NAME = "amazon-sentiment-model"
     MODEL_ARTIFACT_URI = "gs://amazon_sentiment_analysis/distillbert-model-artifacts-final/tensorflow"  # Path to folder containing saved_model.pb
 
