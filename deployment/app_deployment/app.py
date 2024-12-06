@@ -4,6 +4,7 @@ import subprocess
 from transformers import DistilBertTokenizer
 import psycopg2
 import os
+import requests
 
 st.set_page_config(
     page_title="MLOps Application",
@@ -61,6 +62,28 @@ def calculate_avg_rating(product_id):
     except Exception as e:
         st.error(f"Failed to calculate average rating: {e}")
         return 0.0
+
+
+def call_drift_detection_function():
+    SERVICE_URL = "https://us-west1-wired-glider-441301-e1.cloudfunctions.net/drift-detect"  
+
+    payload = {}
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(SERVICE_URL, json=payload, headers=headers)
+        if response.status_code == 200:
+            print("Request was successful!")
+            print("Response:", response.json())
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+            print("Response:", response.text)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 # Tokenization function
 def tokenize_texts(texts, max_length=256):
@@ -233,6 +256,8 @@ if category_id:
                     # Insert review into the database
                     insert_review(product_id, new_review, rating, sentiment)
                     st.success(f"Your review has been submitted! Sentiment: {sentiment}")
+                    call_drift_detection_function()
+
 
                     # Refresh session state to include the new review
                     _, updated_reviews = load_product_details(product_id)  # Reload reviews

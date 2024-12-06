@@ -2,3 +2,4 @@ torch
 transformers
 psycopg2-binary
 streamlit
+requests
