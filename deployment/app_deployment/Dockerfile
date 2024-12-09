@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy application files
-COPY app.py requirements.txt /app/
+COPY requirements.txt /app/
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Add gcloud to PATH
 ENV PATH="/usr/lib/google-cloud-sdk/bin:$PATH"
 
-COPY app.py /app/
+COPY app.py main_app.py welcome_page.py /app/
 
 
 # Expose Streamlit's default port

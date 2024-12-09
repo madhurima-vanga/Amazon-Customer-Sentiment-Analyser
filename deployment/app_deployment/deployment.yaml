@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: ecommerce-app
-        image: sentimentanalysis/application:7.0  
+        image: sentimentanalysis/application:8.0  
         ports:
         - containerPort: 8501
         env:

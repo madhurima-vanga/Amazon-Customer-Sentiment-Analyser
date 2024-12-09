@@ -144,6 +144,10 @@ DVC ensures reproducibility by tracking versions of datasets and outputs.
 
 - **View Data Version History**: DVC allows viewing the full history of data file versions for reproducibility.
 
+```dvc status```
+
+```cat .dvc/config```
+
 ## 🧹 Cleaning Up
 
 To stop the containers, press **CTRL+C** in the terminal where Docker Compose is running.
