@@ -12,6 +12,8 @@ import smtplib
 from email.mime.text import MIMEText
 import requests
 from flask import Flask, request, jsonify
+from google.cloud import storage
+from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -54,7 +56,7 @@ def drift_detection(request):
             connection = psycopg2.connect(**connection_params)
             cursor = connection.cursor()       
             reference_text_query = """SELECT cleaned_text FROM public.reviews WHERE review_id between 1 and 500;"""
-            current_text_query = """SELECT cleaned_text FROM public.reviews ORDER BY review_id DESC LIMIT 5;;"""
+            current_text_query = """SELECT cleaned_text FROM public.reviews ORDER BY review_id DESC LIMIT 5;"""
             cursor.execute(reference_text_query)       
             reference_text_results = cursor.fetchall()
             cursor.execute(current_text_query)       
@@ -71,8 +73,30 @@ def drift_detection(request):
             if connection:
                 connection.close()    
 
-    def send_email(subject, body):
-        message = MIMEText(body, "html")
+    def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
+        """Uploads a file to the GCS bucket."""
+        try:
+            storage_client = storage.Client()
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(destination_blob_name)
+            
+            # Upload the file to the bucket
+            blob.upload_from_filename(source_file_name)
+            
+            # Make the blob publicly accessible
+            blob.make_public()
+            
+            logging.info(f"File uploaded to GCS. Public URL: {blob.public_url}")
+            
+            return blob.public_url  # Return the public URL of the uploaded file
+        except Exception as e:
+            logging.error(f"Failed to upload file to GCS: {e}")
+            return None
+
+    def send_email(subject, body,attachment_link):
+        message_body = body
+        message_body += f"<br><br><a href='{attachment_link}'>View Drift Report</a>"
+        message = MIMEText(message_body, "html")
         message["Subject"] = subject
         message["From"] = sender_email
         message["To"] = receiver_email
@@ -111,7 +135,7 @@ def drift_detection(request):
         except Exception as e:
             logging.warning(f"An error occurred: {e}")
 
-    def update_drift_counter_and_trigger_actions():
+    def update_drift_counter_and_trigger_actions(html_file_path):
         try:
         
             # Establish a connection to the database
@@ -119,12 +143,14 @@ def drift_detection(request):
             cursor = connection.cursor()
 
             # Fetch the current drift counter value
-            cursor.execute("SELECT drift_counter FROM drift_table LIMIT 1;")
+            cursor.execute("SELECT drift_counter FROM drift_count_table ORDER BY inserted_datetime DESC LIMIT 1;")
             result = cursor.fetchone()
 
             if result is None:
                 # If no row exists in the table, initialize drift_counter to 0
                 logging.warning("No row found in drift_table. Initializing drift_counter to 0.")
+                cursor.execute("INSERT INTO drift_count_table (inserted_datetime,drift_counter) VALUES (CURRENT_TIMESTAMP,0);")
+                connection.commit()
                 return
 
             current_count = result[0]
@@ -133,23 +159,27 @@ def drift_detection(request):
             if current_count < 9:
                 # Increment the drift counter
                 new_count = current_count + 1
-                # update_query = "UPDATE drift_table SET drift_counter = %s;"
-                # cursor.execute(update_query, (new_count,))
-                cursor.execute("UPDATE drift_table SET drift_counter = %s;", (new_count,))
+                cursor.execute("INSERT INTO drift_count_table (inserted_datetime,drift_counter) VALUES (CURRENT_TIMESTAMP,%s);", (new_count,))
                 connection.commit()
                 logging.warning(f"Drift counter incremented to {new_count}.")
             else:
                 # Reset the drift counter to 0 and trigger email and job
-                cursor.execute("UPDATE drift_table SET drift_counter = 0;")
+                cursor.execute("INSERT INTO drift_count_table (inserted_datetime,drift_counter) VALUES (CURRENT_TIMESTAMP,0);")
                 connection.commit()
                 logging.warning("Drift counter reached 10. Resetting to 0 and triggering actions.")
-            
+
+                gcs_bucket_name = os.environ['GCS_BUCKET_NAME']
+                gcs_destination_blob_name = f"drift_detect_reports/{html_file_path}"
+                report_url = upload_to_gcs(gcs_bucket_name, html_file_path, gcs_destination_blob_name)
+                if not report_url:
+                    logging.error("Failed to generate or upload report. Skipping email attachment.")
+
                 # Trigger email and Jenkins job
                 subject = "Alert: Drift Detected in Dataset"
-                body = "Drift has been detected in the dataset. Please review the changes. And Model Retrain is triggered"
+                body = "Drift has been detected in the dataset. Please review the attached file for drift report. Model retraining has been triggered"
                 # Send an alert email
                 logging.warning("Triggering an Drift Detected email alert.")
-                send_email(subject, body)
+                send_email(subject, body, attachment_link=report_url)
 
                 logging.warning("Triggering Retrain Pipeline")
                 trigger_jenkins_job()
@@ -190,7 +220,12 @@ def drift_detection(request):
 
     if are_columns_drifted:
         logging.warning("Drift detected in the dataset.")
-        update_drift_counter_and_trigger_actions()
+        # Save report as HTML file locally only if drift is detected.
+        current_datetime_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        html_file_path = f"{current_datetime_stamp}_text_specific_metrics_report.html"
+        logging.info(f'html_file_path: {html_file_path}')
+        text_specific_metrics_report.save_html(html_file_path)
+        update_drift_counter_and_trigger_actions(html_file_path)
     else:
         logging.warning("No drift detected.")
     return jsonify({"message": "Drift detection completed successfully."}), 200
