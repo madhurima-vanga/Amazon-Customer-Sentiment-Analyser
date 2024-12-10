@@ -5,6 +5,11 @@ This project aims to use Large language models and automate sentiment analysis f
 
 This project leverages  MLOps best practices to analyze Amazon customer reviews. Designed with scalability, efficiency, and automation in mind, it provides actionable insights for e-commerce sellers, enabling them to make data-driven decisions.
 
+
+### Architecture Diagram
+
+![Mlops Pipeline Architecture Diagram](Architecture_diagram.png)
+
 ### KEY Features
 
 1. Data Pipeline
@@ -24,10 +29,6 @@ This project leverages  MLOps best practices to analyze Amazon customer reviews.
 4. E-commerce Dashboard
 * Interactive Streamlit application hosted on Kubernetes.
 * Real-time sentiment analysis and visualization of product performance and customer sentiment trends.
-
-### Architecture Diagram
-
-![Mlops Pipeline Architecture Diagram](Architecture_diagram.png)
 
 
 ### Tech Stack
