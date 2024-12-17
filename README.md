@@ -1,4 +1,4 @@
-# Amazon-Product-Review-Sentiment-Analyser
+# Mlops: Customer-Review-Sentiment-Analyser
 
 ## Project Overview
 This project aims to use Large language models and automate sentiment analysis for Amazon customer reviews using an MLOps pipeline that handles data ingestion, training, and deployment in a scalable and efficient way. The system is designed for continuous monitoring and retraining based on data drift.
@@ -6,7 +6,7 @@ This project aims to use Large language models and automate sentiment analysis f
 This project leverages  MLOps best practices to analyze Amazon customer reviews. Designed with scalability, efficiency, and automation in mind, it provides actionable insights for e-commerce sellers, enabling them to make data-driven decisions.
 
 
-### Architecture Diagram
+### Architecture Diagram:
 
 ![Mlops Pipeline Architecture Diagram](Architecture_diagram.png)
 
@@ -42,6 +42,7 @@ This project leverages  MLOps best practices to analyze Amazon customer reviews.
 
 ### Project Structure
 
+```bash
 .
 ├── data_pipeline/                  # Data pipeline files and Airflow DAGs
 ├── model/                          # Model development and training scripts
@@ -49,11 +50,11 @@ This project leverages  MLOps best practices to analyze Amazon customer reviews.
 │   ├── roberta/
 │   └── albert/
 ├── deployment/                     # Deployment configurations and CI/CD pipelines
-├── Jenkinsfile                 # CI/CD pipeline definition
+├── Jenkinsfile                     # CI/CD pipeline definition
 ├── Dockerfile                      # Docker configuration for deployment
 ├── requirements.txt                # Python dependencies
 └── README.md                       # Project documentation
-
+```
 
 ## Pipeline Workflow
 
